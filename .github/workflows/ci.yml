@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup environment
+        run: make setup
+
+      - name: Run checks
+        run: make check
+
+      - name: Run pre-commit hooks on all files
+        run: make pre-commit
