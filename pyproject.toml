@@ -1,17 +1,73 @@
 [project]
 name = "pad-hw"
 version = "0.1.0"
-description = "Add your description here"
+description = "Домашние задания курса ПАД: инфраструктура Python-проекта"
 readme = "README.md"
 authors = [
     { name = "marat", email = "zaripovmarat1207200212@yandex.ru" }
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = []
 
 [project.scripts]
 pad-hw = "pad_hw:main"
 
+[dependency-groups]
+# Инструменты разработки. Версии должны совпадать с rev в .pre-commit-config.yaml
+dev = [
+    "mypy==2.4.0",
+    "pre-commit==4.7.0",
+    "ruff==0.17.2",
+]
+
 [build-system]
 requires = ["uv_build>=0.13.5,<0.14.0"]
 build-backend = "uv_build"
+
+[tool.uv]
+default-groups = ["dev"]
+
+# ---------- Ruff ----------
+[tool.ruff]
+line-length = 99
+target-version = "py312"
+src = ["src"]
+
+[tool.ruff.lint]
+# Сверх набора по умолчанию (E4, E7, E9, F)
+extend-select = [
+    "E",   # pycodestyle errors (в т.ч. E501: длина строки)
+    "W",   # pycodestyle warnings
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "I",   # isort
+    "SIM", # flake8-simplify
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+# ---------- mypy ----------
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]
+mypy_path = "src"
+exclude = [
+    '(^|/)__pycache__/',
+    '(^|/)\.venv/',
+    '(^|/)build/',
+    '(^|/)dist/',
+]
+
+# Послабление только для сторонних библиотек без аннотаций.
+# На собственный код (pad_hw) оно не распространяется.
+[[tool.mypy.overrides]]
+module = [
+    "sklearn.*",
+    "scipy.*",
+    "joblib.*",
+    "matplotlib.*",
+    "seaborn.*",
+]
+ignore_missing_imports = true
