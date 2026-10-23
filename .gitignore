@@ -1,0 +1,45 @@
+# Python-generated files
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+dist/
+wheels/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tool caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.cache/
+
+# Secrets
+.env
+.env.*
+
+# Data and artifacts
+data/
+models/
+artifacts/
+outputs/
+mlruns/
+*.pkl
+*.joblib
+*.parquet
+*.csv
+
+# Notebooks
+.ipynb_checkpoints/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
