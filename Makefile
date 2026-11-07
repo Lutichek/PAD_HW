@@ -8,12 +8,19 @@ COMPOSE ?= docker compose
 # Путь внутри бакета для make s3-ls (например: make s3-ls S3_PATH=raw/)
 S3_PATH ?=
 
+# Параметры конвейера данных (переопределяются так: make data VERSION=v2 SEED=7)
+VERSION ?= v1
+VAL_SIZE ?= 5000
+SEED ?= 42
+PY = $(UV) run --frozen python -m
+
 .PHONY: help setup check lint format-check typecheck pre-commit format clean \
-	s3-up s3-down s3-purge s3-ls
+	s3-up s3-down s3-purge s3-ls ingest data \
+	data-check-version data-download data-convert data-split data-stats data-publish
 
 help: ## Показать список команд
-	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-14s %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  make %-20s %s\n", $$1, $$2}'
 
 setup: ## Поднять окружение с нуля: uv, Python, зависимости, git-хуки
 	@command -v $(UV) >/dev/null 2>&1 || curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -68,3 +75,29 @@ s3-purge: ## Остановить S3 и удалить volume с данными
 s3-ls: .env ## Показать содержимое бакета (путь задаётся через S3_PATH=...)
 	$(COMPOSE) run --rm --no-deps --entrypoint sh s3-init \
 		-c 'aws --endpoint-url http://s3:9000 s3 ls "s3://$$S3_BUCKET/$(S3_PATH)"'
+
+# ---------- Данные ----------
+
+ingest: .env ## Скачать CIFAR-10 с официального сайта и положить в S3 (raw/)
+	$(PY) pad_hw.data.ingest
+
+data: .env ## Весь конвейер: S3 -> PNG + JSON -> split -> stats -> S3 (VERSION, VAL_SIZE, SEED)
+	$(MAKE) data-check-version data-download data-convert data-split data-stats data-publish
+
+data-check-version: ## Шаг 0: убедиться, что версии VERSION ещё нет в S3
+	$(PY) pad_hw.data.publish --version $(VERSION) --check-only
+
+data-download: ## Шаг 1: скачать сырой архив из S3 в data/raw/
+	$(PY) pad_hw.data.download
+
+data-convert: ## Шаг 2: pickle -> PNG-картинки и JSON-разметка
+	$(PY) pad_hw.data.convert
+
+data-split: ## Шаг 3: стратифицированное разбиение train/val (VAL_SIZE, SEED)
+	$(PY) pad_hw.data.split --val-size $(VAL_SIZE) --seed $(SEED)
+
+data-stats: ## Шаг 4: среднее и std по каналам (только train)
+	$(PY) pad_hw.data.stats
+
+data-publish: ## Шаг 5: выгрузить датасет в S3 как processed/cifar10/VERSION/
+	$(PY) pad_hw.data.publish --version $(VERSION)
