@@ -7,7 +7,12 @@ authors = [
     { name = "marat", email = "zaripovmarat1207200212@yandex.ru" }
 ]
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "boto3>=1.43.126",
+    "numpy>=2.5.4",
+    "pillow>=13.0.0",
+    "python-dotenv>=1.2.4",
+]
 
 [project.scripts]
 pad-hw = "pad_hw:main"
@@ -15,6 +20,7 @@ pad-hw = "pad_hw:main"
 [dependency-groups]
 # Инструменты разработки. Версии должны совпадать с rev в .pre-commit-config.yaml
 dev = [
+    "boto3-stubs[s3]>=1.43.126",
     "mypy==2.4.0",
     "pre-commit==4.7.0",
     "ruff==0.17.2",

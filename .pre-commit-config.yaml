@@ -16,3 +16,11 @@ repos:
         name: mypy (strict)
         # Убираем дефолтный --ignore-missing-imports хука: настройки берутся из pyproject.toml
         args: []
+        # Хук работает в изолированном окружении, поэтому ставим в него библиотеки проекта.
+        # Версии совпадают с uv.lock
+        additional_dependencies:
+          - boto3==1.43.126
+          - boto3-stubs[s3]==1.43.126
+          - numpy==2.5.4
+          - pillow==13.0.0
+          - python-dotenv==1.2.4
