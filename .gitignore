@@ -25,12 +25,12 @@ htmlcov/
 .env.*
 !.env.example
 
-# Data and artifacts
-data/
-models/
-artifacts/
-outputs/
-mlruns/
+# Data and artifacts (only in the project root: src/pad_hw/data/ is code)
+/data/
+/models/
+/artifacts/
+/outputs/
+/mlruns/
 *.pkl
 *.joblib
 *.parquet
