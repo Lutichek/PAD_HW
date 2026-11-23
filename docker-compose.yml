@@ -101,6 +101,45 @@ services:
       - training-cache:/app/data/cache
       - ./outputs:/app/outputs
 
+  triton:
+    profiles: ["serving"]
+    image: nvcr.io/nvidia/tritonserver:26.09-py3
+    command: ["tritonserver", "--model-repository=/models"]
+    volumes:
+      - ./model_repository:/models:ro
+    ports:
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8001:8001"
+      - "127.0.0.1:8002:8002"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/v2/health/ready"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  api:
+    profiles: ["serving"]
+    build:
+      context: .
+      dockerfile: Dockerfile.serving
+    depends_on:
+      triton:
+        condition: service_healthy
+    environment:
+      TRITON_URL: http://triton:8000
+      TRITON_MODEL: cifar_cnn
+      TRITON_MODEL_VERSION: "1"
+      STATS_PATH: /serving/stats.json
+    volumes:
+      - ./data/serving:/serving:ro
+    ports:
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:8080/health', timeout=3).close()"]
+      interval: 3s
+      timeout: 4s
+      retries: 20
+
 volumes:
   s3-data:
   mlflow-db:

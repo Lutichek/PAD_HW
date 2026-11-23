@@ -31,6 +31,7 @@ htmlcov/
 /artifacts/
 /outputs/
 /mlruns/
+/model_repository/
 *.pkl
 *.joblib
 *.parquet

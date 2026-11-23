@@ -121,3 +121,25 @@ train: .env ## Запустить один эксперимент из CONFIG
 
 infra-down: .env ## Остановить S3 и MLflow, сохранив данные и запуски
 	$(COMPOSE) --profile training down
+
+SERVING_CONFIG ?= configs/serving.yaml
+SERVING_URL ?= http://127.0.0.1:8080
+VERIFY_ARGS ?=
+LOAD_ARGS ?=
+.PHONY: export serve-up verify load-test serve-down
+
+export: .env ## Экспортировать чекпоинт в ONNX и собрать репозиторий Triton
+	$(PY) pad_hw.serving.export "$(SERVING_CONFIG)"
+
+serve-up: .env ## Собрать HTTP-обёртку и запустить её вместе с Triton
+	test -s model_repository/cifar_cnn/1/model.onnx && test -s data/serving/stats.json
+	$(COMPOSE) up --build -d --wait triton api
+
+verify: .env ## Сравнить метрики HTTP-сервиса и ДЗ №3 на всём test
+	$(PY) pad_hw.serving.verify "$(SERVING_CONFIG)" --url "$(SERVING_URL)" $(VERIFY_ARGS)
+
+load-test: .env ## Измерить задержку и RPS через HTTP-обёртку
+	$(PY) pad_hw.serving.load_test "$(SERVING_CONFIG)" --url "$(SERVING_URL)" $(LOAD_ARGS)
+
+serve-down: .env ## Остановить Triton и HTTP-обёртку
+	$(COMPOSE) --profile serving stop api triton
