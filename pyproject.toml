@@ -9,9 +9,13 @@ authors = [
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "boto3>=1.43.126",
+    "filelock>=3.20",
     "numpy>=2.5.4",
     "pillow>=13.0.0",
     "python-dotenv>=1.2.4",
+    "mlflow-skinny==3.16.0",
+    "pyyaml>=6.0.2",
+    "torch>=2.10,<3",
 ]
 
 [project.scripts]
@@ -24,6 +28,7 @@ dev = [
     "mypy==2.4.0",
     "pre-commit==4.7.0",
     "ruff==0.17.2",
+    "types-pyyaml>=6.0",
 ]
 
 [build-system]
@@ -32,6 +37,14 @@ build-backend = "uv_build"
 
 [tool.uv]
 default-groups = ["dev"]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
 
 # ---------- Ruff ----------
 [tool.ruff]
@@ -75,5 +88,6 @@ module = [
     "joblib.*",
     "matplotlib.*",
     "seaborn.*",
+    "mlflow.*",
 ]
 ignore_missing_imports = true

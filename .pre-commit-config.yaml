@@ -1,4 +1,4 @@
-# Версии (rev) должны совпадать с версиями в [dependency-groups].dev в pyproject.toml
+# Версия Ruff совпадает с версией в [dependency-groups].dev в pyproject.toml
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.17.2
@@ -9,18 +9,11 @@ repos:
         name: ruff (format check)
         args: [--check, --diff]
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v2.4.0
+  - repo: local
     hooks:
       - id: mypy
         name: mypy (strict)
-        # Убираем дефолтный --ignore-missing-imports хука: настройки берутся из pyproject.toml
-        args: []
-        # Хук работает в изолированном окружении, поэтому ставим в него библиотеки проекта.
-        # Версии совпадают с uv.lock
-        additional_dependencies:
-          - boto3==1.43.126
-          - boto3-stubs[s3]==1.43.126
-          - numpy==2.5.4
-          - pillow==13.0.0
-          - python-dotenv==1.2.4
+        entry: bash -c 'exec "${UV_PROJECT_ENVIRONMENT:-.venv}/bin/python" -m mypy'
+        language: system
+        types: [python]
+        pass_filenames: false

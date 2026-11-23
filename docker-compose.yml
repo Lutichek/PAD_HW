@@ -31,18 +31,77 @@ services:
       AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:?S3_ACCESS_KEY is not set, see .env.example}
       AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:?S3_SECRET_KEY is not set, see .env.example}
       AWS_DEFAULT_REGION: ${S3_REGION:-us-east-1}
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
       S3_BUCKET: ${S3_BUCKET:?S3_BUCKET is not set, see .env.example}
+      MLFLOW_BUCKET: ${MLFLOW_BUCKET:-mlflow}
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
         set -e
-        if aws --endpoint-url http://s3:9000 s3api head-bucket --bucket "$$S3_BUCKET" 2>/dev/null; then
-          echo "Bucket $$S3_BUCKET already exists"
-        else
-          aws --endpoint-url http://s3:9000 s3api create-bucket --bucket "$$S3_BUCKET"
-          echo "Bucket $$S3_BUCKET created"
+        if [ "$$S3_BUCKET" = "$$MLFLOW_BUCKET" ]; then
+          echo "S3_BUCKET and MLFLOW_BUCKET must be different" >&2
+          exit 1
         fi
+        for bucket in "$$S3_BUCKET" "$$MLFLOW_BUCKET"; do
+          if ! aws --endpoint-url http://s3:9000 s3api head-bucket --bucket "$$bucket"; then
+            aws --endpoint-url http://s3:9000 s3api create-bucket --bucket "$$bucket"
+          fi
+        done
     restart: "no"
+
+  mlflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
+    depends_on:
+      s3-init:
+        condition: service_completed_successfully
+    environment:
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY:?S3_ACCESS_KEY is not set, see .env.example}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:?S3_SECRET_KEY is not set, see .env.example}
+      AWS_DEFAULT_REGION: ${S3_REGION:-us-east-1}
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+      MLFLOW_S3_ENDPOINT_URL: http://s3:9000
+      MLFLOW_SERVER_ALLOWED_HOSTS: "mlflow:5000,localhost:*,127.0.0.1:*"
+    entrypoint: ["mlflow", "server"]
+    command:
+      - --host=0.0.0.0
+      - --port=5000
+      - --workers=1
+      - --backend-store-uri=sqlite:////tracking/mlflow.db
+      - --serve-artifacts
+      - --artifacts-destination=s3://${MLFLOW_BUCKET:-mlflow}/
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - mlflow-db:/tracking
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health', timeout=3).close()"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  trainer:
+    profiles: ["training"]
+    build:
+      context: .
+      args:
+        PAD_GIT_COMMIT: ${PAD_GIT_COMMIT:-}
+        PAD_GIT_DIRTY: ${PAD_GIT_DIRTY:-}
+    environment:
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:?S3_ACCESS_KEY is not set, see .env.example}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:?S3_SECRET_KEY is not set, see .env.example}
+      S3_BUCKET: ${S3_BUCKET:?S3_BUCKET is not set, see .env.example}
+      S3_REGION: ${S3_REGION:-us-east-1}
+      S3_ENDPOINT_URL: http://s3:9000
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      - training-cache:/app/data/cache
+      - ./outputs:/app/outputs
 
 volumes:
   s3-data:
+  mlflow-db:
+  training-cache:
