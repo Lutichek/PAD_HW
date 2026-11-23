@@ -12,11 +12,14 @@ S3_PATH ?=
 VERSION ?= v1
 VAL_SIZE ?= 5000
 SEED ?= 42
+CONFIG ?= configs/grid.yaml
 PY = $(UV) run --frozen python -m
 
 .PHONY: help setup check lint format-check typecheck pre-commit format clean \
 	s3-up s3-down s3-purge s3-ls ingest data \
 	data-check-version data-download data-convert data-split data-stats data-publish
+
+.PHONY: infra-up infra-down experiments train
 
 help: ## Показать список команд
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -101,3 +104,20 @@ data-stats: ## Шаг 4: среднее и std по каналам (только
 
 data-publish: ## Шаг 5: выгрузить датасет в S3 как processed/cifar10/VERSION/
 	$(PY) pad_hw.data.publish --version $(VERSION)
+
+infra-up: .env ## Собрать образ обучения и поднять S3 и MLflow
+	PAD_GIT_COMMIT=$$(git rev-parse HEAD) PAD_GIT_DIRTY=$$(git status --porcelain | grep -q . && echo true || echo false) \
+		$(COMPOSE) build trainer
+	$(COMPOSE) up -d --build --wait mlflow
+
+experiments: .env ## Запустить baseline и сетку из CONFIG
+	mkdir -p outputs
+	$(PY) pad_hw.grid "$(CONFIG)" --compose "$(COMPOSE)"
+
+train: CONFIG = configs/simple_cnn.yaml
+train: .env ## Запустить один эксперимент из CONFIG
+	mkdir -p outputs
+	$(COMPOSE) run --rm --no-deps -T trainer /dev/stdin < "$(CONFIG)"
+
+infra-down: .env ## Остановить S3 и MLflow, сохранив данные и запуски
+	$(COMPOSE) --profile training down
