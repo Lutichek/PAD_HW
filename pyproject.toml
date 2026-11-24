@@ -30,13 +30,16 @@ dev = [
     "ruff==0.17.2",
     "types-pyyaml>=6.0",
 ]
-serving = [
+demo = [
     "fastapi>=0.115",
     "httpx>=0.28",
-    "numpy>=2.5.4",
-    "pillow>=13.0.0",
     "python-multipart>=0.0.26",
     "uvicorn>=0.34",
+]
+serving = [
+    { include-group = "demo" },
+    "numpy>=2.5.4",
+    "pillow>=13.0.0",
 ]
 export = [
     "onnxruntime>=1.24",

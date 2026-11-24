@@ -1,0 +1,38 @@
+{
+  "dataset": "processed/cifar10/v1",
+  "split": "test",
+  "classes": [
+    "airplane",
+    "automobile",
+    "bird",
+    "cat",
+    "deer",
+    "dog",
+    "frog",
+    "horse",
+    "ship",
+    "truck"
+  ],
+  "examples": [
+    {
+      "file": "test_00021.png",
+      "class_id": 0,
+      "sha256": "f86e26bedc5b45261ee4ebbf1d46283ae49afddc6446d0877c4c5f9d25976e34"
+    },
+    {
+      "file": "test_00127.png",
+      "class_id": 3,
+      "sha256": "46cd5d74bc850be27759447997c4987d99915e1defad22438db2eed4d58f9b6e"
+    },
+    {
+      "file": "test_00005.png",
+      "class_id": 6,
+      "sha256": "d31b1901b24199172f2f652d0b5d6661a4e346a8c1d6b436e77784e93a1d9ad7"
+    },
+    {
+      "file": "test_00001.png",
+      "class_id": 8,
+      "sha256": "eaec54ee1aed958f9548d01aff16c41aeba408885da42759890a538888be879e"
+    }
+  ]
+}

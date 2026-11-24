@@ -140,6 +140,24 @@ services:
       timeout: 4s
       retries: 20
 
+  demo:
+    profiles: ["serving"]
+    build:
+      context: .
+      dockerfile: Dockerfile.demo
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      DEMO_API_URL: ${DEMO_API_URL:-http://api:8080}
+    ports:
+      - "127.0.0.1:7860:7860"
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://localhost:7860/health', timeout=3).close()"]
+      interval: 3s
+      timeout: 4s
+      retries: 20
+
 volumes:
   s3-data:
   mlflow-db:

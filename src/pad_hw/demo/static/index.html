@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Демо классификатора CIFAR-10. Загрузите изображение и посмотрите пять наиболее вероятных классов.">
+  <title>CIFAR-10 — демо классификатора</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/style.css">
+  <script type="module" src="/static/demo.js"></script>
+</head>
+<body>
+  <main>
+    <header class="intro">
+      <p class="product"><span class="pixel-mark" aria-hidden="true"></span>CIFAR-10</p>
+      <h1>Что на изображении?</h1>
+      <p>Загрузите PNG или JPEG, чтобы увидеть пять наиболее вероятных классов.</p>
+    </header>
+
+    <div class="workspace">
+      <section class="panel" aria-labelledby="input-title">
+        <h2 id="input-title">Изображение</h2>
+        <input class="visually-hidden" type="file" id="file" accept="image/png,image/jpeg">
+        <label id="drop-zone" for="file" class="drop-zone">
+          <img id="preview" alt="Загруженное изображение" hidden>
+          <span id="upload-hint">
+            <span class="upload-mark" aria-hidden="true">+</span>
+            <strong>Перетащите изображение</strong>
+            <span>или выберите файл</span>
+          </span>
+        </label>
+        <div class="file-row">
+          <p id="file-name">PNG или JPEG, до 2 МБ</p>
+          <button id="predict" type="button" disabled>Распознать</button>
+        </div>
+      </section>
+
+      <section class="panel results" aria-labelledby="result-title">
+        <h2 id="result-title">Топ-5 классов</h2>
+        <p id="status" role="status">Загрузите изображение или выберите пример ниже.</p>
+        <p id="error" role="alert" hidden></p>
+        <ol id="scores" aria-label="Классы по убыванию уверенности" hidden></ol>
+        <p id="model" hidden></p>
+      </section>
+    </div>
+
+    <section class="examples" aria-labelledby="examples-title">
+      <h2 id="examples-title">Примеры из CIFAR-10</h2>
+      <div id="examples"></div>
+    </section>
+
+    <aside class="scope" aria-label="Классы модели">
+      <strong>Что умеет модель</strong>
+      <p>Свёрточная сеть обучена на CIFAR-10. Даже для фото человека она выберет один из знакомых классов.</p>
+      <p id="classes"></p>
+    </aside>
+  </main>
+</body>
+</html>
