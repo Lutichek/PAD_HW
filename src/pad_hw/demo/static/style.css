@@ -1,0 +1,118 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+  color: #142236;
+  background: #f2f6f9;
+  --muted: #4a5c70;
+  --line: #d2dde7;
+  --blue: #194b9b;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; }
+main { width: min(100% - 2rem, 68rem); margin: 0 auto; padding: 2rem 0; }
+h1, h2, p { margin: 0; }
+h1 { font-size: clamp(2.1rem, 5vw, 3.65rem); line-height: 1.04; letter-spacing: -.055em; }
+h2 { font-size: 1.18rem; letter-spacing: -.02em; }
+.intro { margin-bottom: 1.6rem; }
+.intro > p:last-child { color: var(--muted); margin-top: .65rem; }
+.product {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  margin-bottom: .6rem;
+  color: var(--blue);
+  font-size: .88rem;
+  font-weight: 750;
+  letter-spacing: .08em;
+}
+.pixel-mark {
+  width: 1rem;
+  aspect-ratio: 1;
+  background: conic-gradient(#7aaaf2 25%, #194b9b 0 50%, #d1e2fc 0 75%, #3a71cf 0);
+  border-radius: .15rem;
+}
+.workspace { display: grid; grid-template-columns: 1.05fr 1fr; gap: 1rem; }
+.panel { border: 1px solid var(--line); border-radius: 1rem; padding: 1.15rem; background: #fff; }
+.panel h2 { margin-bottom: .85rem; }
+.drop-zone {
+  display: grid;
+  place-items: center;
+  height: 15rem;
+  border: 2px dashed #a0b5ce;
+  border-radius: .65rem;
+  background: #eff4fb;
+  cursor: pointer;
+  padding: .65rem;
+  overflow: hidden;
+}
+.drop-zone:hover, .drop-zone.dragging { border-color: var(--blue); background: #e6effd; }
+.drop-zone img { width: 100%; height: 100%; object-fit: contain; min-height: 0; }
+.drop-zone img.pixelated, .example img { image-rendering: pixelated; }
+#upload-hint { display: grid; justify-items: center; gap: .3rem; color: var(--muted); text-align: center; }
+#upload-hint strong { color: #142236; }
+.upload-mark {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  aspect-ratio: 1;
+  margin-bottom: .3rem;
+  border-radius: .55rem;
+  background: #dce9fa;
+  color: var(--blue);
+  font-size: 1.6rem;
+}
+.file-row { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin-top: .85rem; }
+#file-name { overflow-wrap: anywhere; color: var(--muted); font-size: .875rem; }
+button { font: inherit; cursor: pointer; }
+#predict {
+  flex-shrink: 0;
+  border: 0;
+  padding: .55rem .85rem;
+  border-radius: .45rem;
+  color: #fff;
+  background: var(--blue);
+  font-size: .875rem;
+  font-weight: 650;
+}
+#predict:hover:enabled { background: #153f84; }
+#predict:disabled { opacity: .5; cursor: default; }
+button:focus-visible, #file:focus-visible + .drop-zone { outline: 3px solid #437de0; outline-offset: 3px; }
+.results { display: flex; flex-direction: column; }
+#status { color: var(--muted); padding: 1.4rem 0; }
+#error { padding: .8rem; border: 1px solid #e2aea7; border-radius: .5rem; background: #fff3f0; color: #862d24; }
+#scores { margin: 0; padding: 0; list-style: none; display: grid; gap: .66rem; }
+.score-value { display: flex; justify-content: space-between; gap: .5rem; font-size: .93rem; }
+.score-value span:last-child { font-variant-numeric: tabular-nums; }
+#scores li:first-child .score-value { font-weight: 750; }
+meter { display: block; width: 100%; height: .55rem; margin-top: .26rem; appearance: none; }
+meter::-webkit-meter-bar { background: #e5edf8; border: 0; border-radius: .3rem; }
+meter::-webkit-meter-optimum-value { background: #497fd4; border-radius: .3rem; }
+meter::-moz-meter-bar { background: #497fd4; border-radius: .3rem; }
+#model { margin-top: auto; padding-top: .7rem; color: var(--muted); font-size: .875rem; }
+.examples { margin-top: 1.2rem; }
+#examples { display: grid; grid-template-columns: repeat(4, 1fr); gap: .65rem; margin-top: .65rem; }
+.example {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  min-width: 0;
+  padding: .45rem;
+  color: inherit;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: .65rem;
+  font-size: .875rem;
+  font-weight: 650;
+}
+.example:hover { border-color: var(--blue); background: #eff4fb; }
+.example img { width: 3rem; aspect-ratio: 1; border-radius: .28rem; }
+.scope { margin-top: 1.15rem; padding: .9rem 1rem; background: #e6edf6; border-radius: .65rem; font-size: .875rem; line-height: 1.5; }
+.scope p { margin-top: .15rem; color: var(--muted); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); }
+@media (max-width: 42rem) {
+  .workspace { grid-template-columns: 1fr; }
+  #examples { grid-template-columns: repeat(2, 1fr); }
+  .drop-zone { height: 13rem; }
+}

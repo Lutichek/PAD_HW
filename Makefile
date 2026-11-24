@@ -126,13 +126,16 @@ SERVING_CONFIG ?= configs/serving.yaml
 SERVING_URL ?= http://127.0.0.1:8080
 VERIFY_ARGS ?=
 LOAD_ARGS ?=
-.PHONY: export serve-up verify load-test serve-down
+.PHONY: export serving-files serve-up verify load-test serve-down demo-up demo-down
 
 export: .env ## Экспортировать чекпоинт в ONNX и собрать репозиторий Triton
 	$(PY) pad_hw.serving.export "$(SERVING_CONFIG)"
 
-serve-up: .env ## Собрать HTTP-обёртку и запустить её вместе с Triton
-	test -s model_repository/cifar_cnn/1/model.onnx && test -s data/serving/stats.json
+serving-files:
+	@test -s model_repository/cifar_cnn/1/model.onnx && test -s data/serving/stats.json || \
+		{ echo "Run make export before starting the services." >&2; exit 1; }
+
+serve-up: .env serving-files ## Собрать HTTP-обёртку и запустить её вместе с Triton
 	$(COMPOSE) up --build -d --wait triton api
 
 verify: .env ## Сравнить метрики HTTP-сервиса и ДЗ №3 на всём test
@@ -143,3 +146,9 @@ load-test: .env ## Измерить задержку и RPS через HTTP-об
 
 serve-down: .env ## Остановить Triton и HTTP-обёртку
 	$(COMPOSE) --profile serving stop api triton
+
+demo-up: .env serving-files ## Собрать и поднять интерфейс, API и Triton
+	$(COMPOSE) up --build -d --wait triton api demo
+
+demo-down: .env ## Остановить интерфейс, API и Triton
+	$(COMPOSE) --profile serving stop demo api triton

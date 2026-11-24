@@ -820,6 +820,12 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
+demo = [
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "python-multipart" },
+    { name = "uvicorn" },
+]
 dev = [
     { name = "boto3-stubs", extra = ["s3"] },
     { name = "mypy" },
@@ -853,6 +859,12 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
+demo = [
+    { name = "fastapi", specifier = ">=0.115" },
+    { name = "httpx", specifier = ">=0.28" },
+    { name = "python-multipart", specifier = ">=0.0.26" },
+    { name = "uvicorn", specifier = ">=0.34" },
+]
 dev = [
     { name = "boto3-stubs", extras = ["s3"], specifier = ">=1.43.126" },
     { name = "mypy", specifier = "==2.4.0" },
